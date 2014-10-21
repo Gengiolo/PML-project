@@ -1,0 +1,8 @@
+## The project work
+Human Activity Recognition - HAR - has emerged as a key research area in the last years and is gaining increasing attention by the pervasive computing research community, especially for the development of context-aware systems.  
+For this project I was supposed to use the "Weight Lifting Exercises Dataset" in which six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+The goal of the project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set.
+
+##Exploring the data
+
+
