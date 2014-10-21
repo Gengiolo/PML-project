@@ -1,0 +1,85 @@
+## The project work
+Human Activity Recognition - HAR - has emerged as a key research area in the last years and is gaining increasing attention by the pervasive computing research community, especially for the development of context-aware systems.  
+For this project we were supposed to use the "Weight Lifting Exercises Dataset" in which six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+The goal of the project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set.
+
+----------------------------------------
+<br>
+
+## Exploring the data
+
+The first thing to do is to understand the data and which feature could be useful for our purposes.
+So we can load the caret package and the data contained in the "pml-training.csv" file.
+
+```{r }
+library(caret)
+set.seed(83947)
+data = read.csv("pml-training.csv", header = TRUE)
+dim(data)
+```
+As you can see this is a huge dataset with a lots of records and variables. On one hand this means that it could be easier to build a good model on it, but on the other hand it could be really expensive in terms of computational resourses. 
+Thus selecting which variable are better than others to predict the outcome could be really fundamental.
+In fact, as you can see below (for the first raw as like the others) the data are not really clean.
+
+```{r }
+data[1,]
+```
+
+There are a lots of blank values and NA. After some more explorations I decided to remove all the variables affected by these problems and select only the variables directly connected to the sensors:
+
+```{r }
+data = read.csv("pml-training.csv", header = TRUE)
+data <- data[ , ! apply(data , 2 , function(x) any(is.na(x)) ) ]
+classe <- data$classe
+data <- data[, grepl( "^roll|^pitch|^yaw|^gyros", names(data))]  
+data <- cbind(classe, data)
+```
+
+Now what we have is only the cleaned data with few variables left:
+
+```{r }
+names(data)
+```
+----------------------------------------
+<br>
+## Partitioning the data
+
+Following the general rule in machine learning I decided to split the data in two different dataset, the training and the testing.
+I chose to give a 70% of the samples to the training even if it was not strictly needed. In fact, also with only 1/10 of the data it would be possible to build an extremely accurate model (more than 94%).
+Here's the command to split the data:
+
+```{r }
+inTrain <- createDataPartition(data$classe, p=.7, list = FALSE)
+training <- data[inTrain, ]
+testing <- data[-inTrain, ]
+```
+----------------------------------------
+<br>
+## Training the model with cross-validation
+
+After some experimentations I understood that there was not real need to pre-process data.
+I decided to build directly the model performing a 10-fold cross-validation that has proven to be the best cv choise (see next section).
+As you can see in the code that follows I also decided to build the model with the random forest algorithm. It is really expensive in terms of computational time, but it's the best predictor for these data (lda for example can build the model almost instantaneously but its accuracy doesn't exceed the 70%).
+
+```{r }
+fitControl <- trainControl(method = "cv",number = 10)
+modelFit <- train(training$classe ~., method="rf", trControl = fitControl, data= training)
+modelFit
+```
+As you can see the accuracy is really hight. I will test it again in the next section using the completely new training dataset I constructed above.
+
+----------------------------------------
+<br>
+## Predicting the data and out of samples error
+
+So, The last two lines of code below are used to predict the data conteined in the testing dataset and to summarize the latest news about the accuracy.
+
+```{r }
+pred <- predict(modelFit, testing)
+confusionMatrix(pred, testing$classe)
+```
+
+It turns out that the model is incredibly accurate with a 99% of accuracy.
+We can consider this estime credible due to the fact that I used cross validation during the training and tested the model with a completely new set of data. 
+
+
