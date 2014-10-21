@@ -5,10 +5,10 @@ set.seed(83947)
 data = read.csv("pml-training.csv", header = TRUE)
 data <- data[ , ! apply(data , 2 , function(x) any(is.na(x)) ) ]
 classe <- data$classe
-data <- data[, grepl( "^roll|^pitch|^yaw|^total|^gyros|^accel|^magnet", names(data))]
+data <- data[, grepl( "^roll|^pitch|^yaw|^gyros", names(data))]  #|^accel|^magnet|^total
 data <- cbind(classe, data)
 
-inTrain <- createDataPartition(data$classe, p=.2, list = FALSE)
+inTrain <- createDataPartition(data$classe, p=.7, list = FALSE)
 training <- data[inTrain, ]
 testing <- data[-inTrain, ]
 
@@ -29,3 +29,13 @@ confusionMatrix(pred, testing$classe)
 #               trControl = fitControl,
 #               verbose = FALSE)
 #pred <- predict(fitControl, testing)
+
+#testex <- read.csv("pml-testing.csv", header = TRUE)
+#testex <- testex[, grepl( "^roll|^pitch|^yaw|^gyros", names(testex))]
+#pml_write_files = function(x){
+#  n = length(x)
+#  for(i in 1:n){
+#    filename = paste0("problem_id_",i,".txt")
+#    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+#  }
+#}
